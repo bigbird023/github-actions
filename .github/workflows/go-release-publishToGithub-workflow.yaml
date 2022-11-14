@@ -1,0 +1,27 @@
+name: Publish Binaries to Github
+
+on:
+  workflow_call:
+
+jobs:
+  releases-matrix:
+    name: Publish Go Binary to Github
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # build and publish in parallel: linux/amd64
+        goos: [linux, windows]
+        goarch: [amd64]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run tests
+        run: go test -v -p=1 -timeout=0 ./...
+      - uses: wangyoucao577/go-release-action@v1.32
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          goos: ${{ matrix.goos }}
+          goarch: ${{ matrix.goarch }}
+          project_path: "./"
+          binary_name: "fortifyxmlparsertoexcel"
+          ldflags: "-s -w"
+          extra_files: LICENSE README.md
