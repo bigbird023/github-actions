@@ -76,5 +76,5 @@ jobs:
     - name: WriteGoList
       run: go list -json -m all > go.list
 
-    - name: Nancy
+    - name: Quality Gate - Dependency Vulnerability Check with Nancy
       uses: sonatype-nexus-community/nancy-github-action@main
