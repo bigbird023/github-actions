@@ -33,30 +33,14 @@ jobs:
       with:
         go-version: 1.19
 
-    - name: Test
-      run: go test -v -json ./... > TestResults.json
+    - name: Quality Gate - Unit Test
+      run: |
+            go test ./... -coverprofile coverage.out -covermode count
+            go tool cover -func coverage.out
 
-    - name: Upload Go test results
-      uses: actions/upload-artifact@v3
-      with:
-        name: Unit-Test-Results
-        path: TestResults.json
-
-  unittestcoverage:
-    name: Unit Test Coverage
-    runs-on: ubuntu-latest
-    needs: unittest
-    env:
-        TESTCOVERAGE_THRESHOLD: 90
-    steps:
-    - uses: actions/checkout@v3
-
-    - name: Set up Go
-      uses: actions/setup-go@v3
-      with:
-        go-version: 1.19
-        
-    - name: check
+    - name: Quality Gate - Test Coverage Check
+      env:
+          TESTCOVERAGE_THRESHOLD: 0
       run: |
             echo "Quality Gate: checking test coverage is above threshold ..."
             echo "Threshold             : $TESTCOVERAGE_THRESHOLD %"
@@ -69,6 +53,13 @@ jobs:
                 echo "Failed"
                 exit 1
             fi
+
+    - name: Upload Go test results
+      uses: actions/upload-artifact@v3
+      with:
+        name: Unit-Test-Results
+        path: coverage.out
+
 
   dependencyVulnterabilityCheck:
     name: Dependency Vulnerability Check
