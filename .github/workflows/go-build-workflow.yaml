@@ -61,23 +61,29 @@ jobs:
         path: coverage.out
 
   lint:
-    name: Quality Gate - Lint Check
+    name: Lint
     runs-on: ubuntu-latest
     needs: unittest
     steps:
     - uses: actions/checkout@v3
 
-    - name: Set up Go
+    - name: Setup GO
       uses: actions/setup-go@v3
       with:
         go-version: 1.19
 
-    - name: Lint
+    - name: Setup GO lint
+      run: |
+            go mod download
+            go get -u golang.org/x/lint/golint
+            go get -t .
+
+    - name:  Quality Gate - Lint Check
       run: |
         golint -set_exit_status ./...
 
   vet:
-    name: Quality Gate - Vet Check
+    name: Vet
     runs-on: ubuntu-latest
     needs: unittest
     steps:
@@ -88,9 +94,9 @@ jobs:
       with:
         go-version: 1.19
 
-    - name: Vet
+    - name: Quality Gate - Vet Check
       run: |
-        get vet ./...
+        go vet ./...
 
   dependencyVulnterabilityCheck:
     name: Dependency Vulnerability Check
