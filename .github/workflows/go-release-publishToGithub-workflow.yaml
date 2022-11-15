@@ -15,6 +15,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Run tests
+        env:
+          BINARY_NAME: "binaryname"
         run: go test -v -p=1 -timeout=0 ./...
       - uses: wangyoucao577/go-release-action@v1.32
         with:
@@ -22,6 +24,6 @@ jobs:
           goos: ${{ matrix.goos }}
           goarch: ${{ matrix.goarch }}
           project_path: "./"
-          binary_name: "fortifyxmlparsertoexcel"
+          binary_name: ${{env.BINARY_NAME}}
           ldflags: "-s -w"
           extra_files: LICENSE README.md
