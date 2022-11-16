@@ -6,6 +6,7 @@ on:
       BINARY_NAME:
         description: 'BINARY_NAME for naming the generated binary.'
         required: true
+        type: string
         default: 'binarynamerelease'
 
 jobs:
