@@ -6,25 +6,9 @@ on:
 
 jobs:
 
-  build:
-    name: Build Application
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
-
-    - name: Set up Go
-      uses: actions/setup-go@v3
-      with:
-        go-version: 1.19
-
-    - name: Build
-      run: go build -v ./...
-
-
   lint:
     name: Lint
     runs-on: ubuntu-latest
-    needs: build
     steps:
     - name: Setup Go
       uses: actions/setup-go@v3
@@ -45,7 +29,6 @@ jobs:
   vet:
     name: Vet
     runs-on: ubuntu-latest
-    needs: build
     steps:
     - uses: actions/checkout@v3
 
@@ -58,12 +41,66 @@ jobs:
       run: |
         go vet ./...
 
-  unittest:
-    name: Unit Test
+
+  staticcheck:
+    name: Static Check
+    runs-on: ubuntu-latest
+    steps:
+    - name: Setup Go
+      uses: actions/setup-go@v3
+      with:
+        go-version: 1.19
+
+    - name: Install Dependencies
+      run: |
+            go version
+            go install honnef.co/go/tools/cmd/staticcheck@latest
+
+    - uses: actions/checkout@v3
+
+    - name:  Quality Gate - Static Check
+      run: |
+        staticcheck ./...
+
+  dependencyVulnterabilityCheck:
+    name: Dependency Vulnerability Check
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Go
+      uses: actions/setup-go@v3
+      with:
+        go-version: 1.19
+        
+    - name: WriteGoList
+      run: go list -json -m all > go.list
+
+    - name: Quality Gate - Dependency Vulnerability Check with Nancy
+      uses: sonatype-nexus-community/nancy-github-action@main
+
+  build:
+    name: Build Application
     runs-on: ubuntu-latest
     needs: 
       - vet
       - lint
+      - staticcheck
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Go
+      uses: actions/setup-go@v3
+      with:
+        go-version: 1.19
+
+    - name: Build
+      run: go build -v ./...
+
+  unittest:
+    name: Unit Test
+    runs-on: ubuntu-latest
+    needs: build
     steps:
     - uses: actions/checkout@v3
 
@@ -98,22 +135,3 @@ jobs:
       with:
         name: Unit-Test-Results
         path: coverage.out
-
-
-  dependencyVulnterabilityCheck:
-    name: Dependency Vulnerability Check
-    runs-on: ubuntu-latest
-    needs: unittest
-    steps:
-    - uses: actions/checkout@v3
-
-    - name: Set up Go
-      uses: actions/setup-go@v3
-      with:
-        go-version: 1.19
-        
-    - name: WriteGoList
-      run: go list -json -m all > go.list
-
-    - name: Quality Gate - Dependency Vulnerability Check with Nancy
-      uses: sonatype-nexus-community/nancy-github-action@main
