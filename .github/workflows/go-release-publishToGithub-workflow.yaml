@@ -1,24 +1,17 @@
 name: Publish Binaries to Github
 
-env:
-  BINARY_NAME: "binarynamerelease"
-
-
-
 on:
   workflow_call:
     inputs:
       BINARY_NAME:
         description: 'BINARY_NAME for naming the generated binary.'
         required: true
-        default: '${{env.BINARY_NAME}}'
+        default: 'binarynamerelease'
 
 jobs:
   releases-matrix:
     name: Publish Go Binary to Github
     runs-on: ubuntu-latest
-    env:
-      BINARY_NAME: "binarynamerelease"
     strategy:
       matrix:
         # build and publish in parallel: linux/amd64
