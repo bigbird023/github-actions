@@ -3,14 +3,15 @@ name: Publish Binaries to Github
 env:
   BINARY_NAME: "binarynamerelease"
 
-inputs:
-  BINARY_NAME:
-    description: 'BINARY_NAME for naming the generated binary.'
-    required: true
-    default: '${{env.BINARY_NAME}}'
+
 
 on:
   workflow_call:
+    inputs:
+      BINARY_NAME:
+        description: 'BINARY_NAME for naming the generated binary.'
+        required: true
+        default: '${{env.BINARY_NAME}}'
 
 jobs:
   releases-matrix:
