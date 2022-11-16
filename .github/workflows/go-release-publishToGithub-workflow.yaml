@@ -1,5 +1,14 @@
 name: Publish Binaries to Github
 
+env:
+  BINARY_NAME: "binarynamerelease"
+
+inputs:
+  BINARY_NAME:
+    description: 'BINARY_NAME for naming the generated binary.'
+    required: true
+    default: '${{env.BINARY_NAME}}'
+
 on:
   workflow_call:
 
@@ -7,6 +16,8 @@ jobs:
   releases-matrix:
     name: Publish Go Binary to Github
     runs-on: ubuntu-latest
+    env:
+      BINARY_NAME: "binarynamerelease"
     strategy:
       matrix:
         # build and publish in parallel: linux/amd64
@@ -24,6 +35,6 @@ jobs:
           goos: ${{ matrix.goos }}
           goarch: ${{ matrix.goarch }}
           project_path: "./"
-          binary_name: ${{env.BINARY_NAME}}
+          binary_name: ${{input.BINARY_NAME}}
           ldflags: "-s -w"
           extra_files: LICENSE README.md
