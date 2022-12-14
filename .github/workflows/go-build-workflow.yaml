@@ -125,7 +125,15 @@ jobs:
 
     - name: Quality Gate - Check Dependency Licenses against approved list
       run: |
-        go-licenses check ./... --disallowed_types=forbidden > deplicense.csv
+        go mod download
+        go-licenses check ./... --disallowed_types=forbidden > depedentlicense.out 2>error.out
+        if [ -s dependentlicense.out ]; then
+          echo "No Dependent License against approved list"
+        else
+          echo "Dependent License issue found"
+          cat depedentlicense.out
+          exit 1
+        fi
 
   build:
     name: Build Application
