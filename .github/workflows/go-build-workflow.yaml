@@ -3,6 +3,11 @@
 
 on:
   workflow_call:
+    inputs:
+        TESTCOVERAGE_THRESHOLD:
+          type: integer
+          required: false
+          default: 90
 
 jobs:
 
@@ -117,7 +122,7 @@ jobs:
 
     - name: Quality Gate - Test Coverage Check
       env:
-          TESTCOVERAGE_THRESHOLD: 90
+          TESTCOVERAGE_THRESHOLD: ${{ inputs.TESTCOVERAGE_THRESHOLD }}
       run: |
             echo "Quality Gate: checking test coverage is above threshold ..."
             echo "Threshold             : $TESTCOVERAGE_THRESHOLD %"
