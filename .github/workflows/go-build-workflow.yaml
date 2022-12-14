@@ -5,7 +5,7 @@ on:
   workflow_call:
     inputs:
         TESTCOVERAGE_THRESHOLD:
-          type: integer
+          type: number
           required: false
           default: 90
 
