@@ -127,11 +127,13 @@ jobs:
       run: |
         go mod download
         go-licenses check ./... --disallowed_types=forbidden > depedentlicense.out 2>error.out
+        echo "dependent license check output"
+        cat depedentlicense.out
+        echo "end -dependent license check output"
         if [ -s depedentlicense.out ]; then
           echo "No Dependent License against approved list"
         else
           echo "Dependent License issue found"
-          cat depedentlicense.out
           exit 1
         fi
 
