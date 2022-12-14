@@ -127,7 +127,7 @@ jobs:
       run: |
         go mod download
         go-licenses check ./... --disallowed_types=forbidden > depedentlicense.out 2>error.out
-        if [ -s dependentlicense.out ]; then
+        if [ -s depedentlicense.out ]; then
           echo "No Dependent License against approved list"
         else
           echo "Dependent License issue found"
@@ -144,6 +144,7 @@ jobs:
       - staticcheck
       - dependencyVulnterabilityCheck
       - licenseExists
+      - licenseChecker
     steps:
     - uses: actions/checkout@v3
 
