@@ -131,10 +131,10 @@ jobs:
         cat depedentlicense.out
         echo "end -dependent license check output"
         if [ -s depedentlicense.out ]; then
-          echo "No Dependent License against approved list"
-        else
           echo "Dependent License issue found"
           exit 1
+        else
+          echo "No Dependent License against approved list"
         fi
 
   build:
