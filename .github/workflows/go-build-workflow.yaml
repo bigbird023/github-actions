@@ -107,6 +107,26 @@ jobs:
           exit 1
         fi
 
+  licenseChecker:
+    name: Check Dependency Licenses against approved list
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Go
+      uses: actions/setup-go@v3
+      with:
+        go-version: ${{ inputs.GOLANG_VERSION }}
+
+    - name: Install Dependencies
+      run: |
+        go version
+        go install github.com/google/go-licenses@latest
+
+    - name: Quality Gate - Check Dependency Licenses against approved list
+      run: |
+        go-licenses check ./... --disallowed_types=forbidden > deplicense.csv
+
   build:
     name: Build Application
     runs-on: ubuntu-latest
