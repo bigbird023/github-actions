@@ -11,7 +11,7 @@ on:
       NODE_VERSION:
         type: string
         required: false
-        default: 12.x
+        default: 16.x
 
 jobs:
 
