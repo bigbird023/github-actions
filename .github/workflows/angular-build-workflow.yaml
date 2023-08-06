@@ -28,5 +28,5 @@ jobs:
 
       - name: npm install and npm run build
         run: |
-          npm ci
-          ng build
+          npm install
+          npm run-script build
