@@ -29,8 +29,14 @@ jobs:
       - name: install dependencies
         run: npm install
 
+      - name: code style check
+        run: npm run check:codestyle
+
       - name: run tests
         run: npm run test:headless
+
+      - name: run test coverage
+        run: npm run check:unittestcoverage
 
       - name: build
         run: npm run build:prod
