@@ -27,8 +27,13 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v3
 
+    - name: Setup.NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '5.0.100-preview.1.20155.7'  
+
     - name: Install GitVersion
-      uses: gittools/actions/gitversion/setup@v0.10.2
+      uses: gittools/actions/gitversion/setup@v0.9
       with:
           versionSpec: '5.1.x'
 
