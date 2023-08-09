@@ -27,6 +27,11 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v3
 
+    - name: Install GitVersion
+      uses: gittools/actions/gitversion/setup@v0.10.2
+      with:
+          versionSpec: '5.1.x'
+
     - name: GitVersion Setup
       id: gitversion # step id used as reference for output values
       uses: gittools/actions/gitversion/execute@v0.9
