@@ -18,26 +18,20 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        node-version: [16.x, 18.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+
     steps:
-      - uses: actions/checkout@v3
-
-      - name: Node $
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ inputs.NODE_VERSION }}
-
-      - name: install dependencies
-        run: npm install
-
-      - name: code style check
-        run: npm run check:codestyle
-
-      - name: run tests
-        run: npm run test:headless
-
-      - name: run test coverage
-        run: npm run check:unittestcoverage
-
-      - name: build
-        run: npm run build:prod
+    - uses: actions/checkout@v3
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    - run: npm ci
+    - run: npm lint
+    - run: npm run build --if-present
+    - run: npm test
 
