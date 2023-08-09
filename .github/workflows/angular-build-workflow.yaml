@@ -26,15 +26,13 @@ jobs:
     steps:
     - name: Checkout Code
       uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
 
-    - name: GitTools
-      uses: GitTools/actions@v0.10.2
- 
-
-    # - name: Setup.NET Core
-    #   uses: actions/setup-dotnet@v1
-    #   with:
-    #     dotnet-version: '6.0.413'  
+    - name: Setup.NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '6.0.413'
 
     - name: Install GitVersion
       uses: gittools/actions/gitversion/setup@v0
