@@ -30,7 +30,7 @@ jobs:
     - name: Setup.NET Core
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: '5.0.0-preview.1.20120.5'  
+        dotnet-version: '6.0.413'  
 
     - name: Install GitVersion
       uses: gittools/actions/gitversion/setup@v0.9
