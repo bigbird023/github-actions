@@ -31,7 +31,14 @@ jobs:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
     - run: npm ci
-    - run: npm lint
+    - run: npm run lint
     - run: npm run build --if-present
     - run: npm test
+
+    - name: Install zip
+      uses: montudor/action-zip@v1
+
+    - name: Zip output
+      run: zip -qq -r function.zip dist node_modules package.json
+      working-directory: path/to/work-dir
 
