@@ -27,15 +27,19 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v3
 
-    - name: Setup.NET Core
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: '6.0.413'  
+    - name: GitTools
+      uses: GitTools/actions@v0.10.2
+ 
+
+    # - name: Setup.NET Core
+    #   uses: actions/setup-dotnet@v1
+    #   with:
+    #     dotnet-version: '6.0.413'  
 
     - name: Install GitVersion
-      uses: gittools/actions/gitversion/setup@v0.9
+      uses: gittools/actions/gitversion/setup@v0
       with:
-          versionSpec: '5.1.x'
+          versionSpec: '5.x'
 
     - name: Determine Version
       id: gitversion # step id used as reference for output values
