@@ -92,4 +92,8 @@ jobs:
     - name: Zip output
       run: zip -qq -r ${{ github.event.repository.name }}-${{ steps.gitversion.outputs.fullSemVer }}.zip dist node_modules package.json
       
-
+    - name: Artifact Publish
+      uses: actions/upload-artifact@v3
+      with: 
+        name: ${{ github.event.repository.name }}-${{ steps.gitversion.outputs.fullSemVer }}.zip
+        path: ${{ github.event.repository.name }}-${{ steps.gitversion.outputs.fullSemVer }}.zip
