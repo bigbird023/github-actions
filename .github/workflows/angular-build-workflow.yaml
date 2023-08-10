@@ -4,6 +4,10 @@
 on:
   workflow_call:
     inputs:
+      PULLREQUEST_FLAG:
+        type: boolean
+        required: true
+        default: true
       TESTCOVERAGE_THRESHOLD:
         type: number
         required: false
@@ -12,10 +16,6 @@ on:
         type: string
         required: false
         default: '16'
-      PULLREQUEST_FLAG:
-        type: boolean
-        required: false
-        default: true
 
 jobs:
 
