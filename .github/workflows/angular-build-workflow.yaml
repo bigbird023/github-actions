@@ -64,11 +64,11 @@ jobs:
     - name: Zip output
       run: zip -qq -r ${{ env.ARCHIVE_NAME }} dist node_modules package.json
       
-    - name: Artifact Publish
-      uses: actions/upload-artifact@v3
-      with: 
-        name: ${{ env.ARCHIVE_NAME }}
-        path: ${{ env.ARCHIVE_NAME }}
+    # - name: Artifact Publish
+    #   uses: actions/upload-artifact@v3
+    #   with: 
+    #     name: ${{ env.ARCHIVE_NAME }}
+    #     path: ${{ env.ARCHIVE_NAME }}
 
     - name: Create Draft Release
       id: create_release
