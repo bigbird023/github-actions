@@ -20,7 +20,8 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [16.x, 18.x]
+        node-version: [18.x] 
+        # 16.x, 
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
@@ -63,18 +64,12 @@ jobs:
 
     - name: Zip output
       run: zip -qq -r ${{ env.ARCHIVE_NAME }} dist node_modules package.json
-      
-    # - name: Artifact Publish
-    #   uses: actions/upload-artifact@v3
-    #   with: 
-    #     name: ${{ env.ARCHIVE_NAME }}
-    #     path: ${{ env.ARCHIVE_NAME }}
 
     - name: Create Draft Release
       id: create_release
       uses: actions/create-release@v1
       env:
-        GITHUB_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: ${{ steps.gitversion.outputs.fullSemVer }}
         release_name: ${{ env.ARCHIVE_NAME }}
@@ -83,7 +78,7 @@ jobs:
   
     - uses: actions/upload-release-asset@v1.0.1
       env:
-        GITHUB_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: ./${{ env.ARCHIVE_NAME }}
@@ -92,6 +87,6 @@ jobs:
 
     - uses: eregon/publish-release@v1
       env:
-        GITHUB_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         release_id: ${{ steps.create_release.outputs.id }}
