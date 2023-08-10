@@ -12,6 +12,10 @@ on:
         type: string
         required: false
         default: '16'
+      PULLREQUEST_FLAG:
+        type: boolean
+        required: false
+        default: true
 
 jobs:
 
@@ -66,6 +70,7 @@ jobs:
       run: zip -qq -r ${{ env.ARCHIVE_NAME }} dist node_modules package.json
 
     - name: Create Draft Release
+      if: inputs.PULLREQUEST_FLAG != true
       id: create_release
       uses: actions/create-release@v1
       env:
@@ -77,6 +82,7 @@ jobs:
         prerelease: false
   
     - uses: actions/upload-release-asset@v1.0.1
+      if: inputs.PULLREQUEST_FLAG != true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
@@ -86,6 +92,7 @@ jobs:
         asset_content_type: application/zip
 
     - uses: eregon/publish-release@v1
+      if: inputs.PULLREQUEST_FLAG != true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
