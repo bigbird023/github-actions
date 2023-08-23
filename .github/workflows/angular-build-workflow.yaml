@@ -60,7 +60,7 @@ jobs:
         cache: 'npm'
     - run: npm ci
     - run: npm run lint
-    - run: npm run build --if-present --configuration production
+    - run: npm run build --if-present
     - run: npm test
 
     - name: Install zip
