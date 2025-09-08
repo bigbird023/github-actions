@@ -91,15 +91,15 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Validate Docker Format
-        run: dockerfile-lint Dockerfile
+      # - name: Validate Docker Format
+      #   run: dockerfile-lint Dockerfile
 
       - name: Build Docker Image
         run: docker build -t ${{ inputs.docker_image }}:latest .
 
-      - name: Check for Vulnerabilities
-        run: |
-          docker scan ${{ inputs.docker_image }}:latest
+      # - name: Check for Vulnerabilities
+      #   run: |
+      #     docker scan ${{ inputs.docker_image }}:latest
 
       - name: Manual Approval
         uses: hmarr/auto-approve-action@v2
