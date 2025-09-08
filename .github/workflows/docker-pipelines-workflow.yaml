@@ -54,7 +54,7 @@ jobs:
 
       - name: Tag Docker Image
         run: |
-          VERSION_NO_BUILD=${{ env.version#v }}
+          VERSION_NO_BUILD=${{ env.version# }}
           MAJOR=$(echo $VERSION_NO_BUILD | cut -d. -f1)
           MINOR=$(echo $VERSION_NO_BUILD | cut -d. -f2)
           PATCH=$(echo $VERSION_NO_BUILD | cut -d. -f3)
