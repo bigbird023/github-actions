@@ -1,0 +1,160 @@
+name: Docker Pipeline
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'tags/*'
+  schedule:
+    - cron: '0 2 * * 0' # Every Sunday at 10 PM Eastern (converted to UTC)
+
+jobs:
+  shared-steps:
+    name: Shared Steps
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.set-version.outputs.version }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+  
+      - name: Fetch Repository Name
+        id: fetch-repo-name
+        run: |
+          REPO_NAME=$(basename $(git rev-parse --show-toplevel))
+          echo "Repository name: $REPO_NAME"
+          echo "repo_name=$REPO_NAME" >> $GITHUB_ENV
+  
+      - name: Fetch Tags and Calculate Version
+        id: set-version
+        run: |
+          git fetch --tags
+          TAG=$(git tag --list 'v*' | sort -V | tail -n 1)
+          if [ -z "$TAG" ]; then
+            TAG="v0.0.1"
+          fi
+          BUILD_ID=$(date +%Y%m%d%H%M%S)
+          VERSION="${TAG}-build${BUILD_ID}"
+          echo "version=$VERSION" >> $GITHUB_ENV
+          echo "::set-output name=version::$VERSION"
+  
+      - name: Build Docker Image
+        run: |
+          docker build -t ${{ env.repo_name }}:${{ env.version }} .
+          docker tag ${{ env.repo_name }}:${{ env.version }} ${{ env.repo_name }}:latest
+  
+      - name: Tag Docker Image
+        run: |
+          VERSION_NO_BUILD=${{ env.version#v }}
+          MAJOR=$(echo $VERSION_NO_BUILD | cut -d. -f1)
+          MINOR=$(echo $VERSION_NO_BUILD | cut -d. -f2)
+          PATCH=$(echo $VERSION_NO_BUILD | cut -d. -f3)
+          docker tag ${{ env.repo_name }}:${{ env.version }} ${{ env.repo_name }}:v$MAJOR.$MINOR.$PATCH
+          docker tag ${{ env.repo_name }}:${{ env.version }} ${{ env.repo_name }}:v$MAJOR.$MINOR
+          docker tag ${{ env.repo_name }}:${{ env.version }} ${{ env.repo_name }}:v$MAJOR
+  
+      - name: Push Docker Image
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        run: |
+          echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+          docker push ${{ env.repo_name }}:${{ env.version }}
+          docker push ${{ env.repo_name }}:latest
+          docker push ${{ env.repo_name }}:v$MAJOR.$MINOR.$PATCH
+          docker push ${{ env.repo_name }}:v$MAJOR.$MINOR
+          docker push ${{ env.repo_name }}:v$MAJOR
+  
+      - name: Log Pushed Tags
+        run: |
+          echo "Docker image pushed with the following tags:"
+          echo "- ${{ env.repo_name }}:${{ env.version }}"
+          echo "- ${{ env.repo_name }}:latest"
+          echo "- ${{ env.repo_name }}:v$MAJOR.$MINOR.$PATCH"
+          echo "- ${{ env.repo_name }}:v$MAJOR.$MINOR"
+          echo "- ${{ env.repo_name }}:v$MAJOR"
+
+main-branch:
+  name: Main Branch Pipeline
+  runs-on: ubuntu-latest
+  steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Validate Docker Format
+      run: dockerfile-lint Dockerfile
+
+    - name: Build Docker Image
+      run: docker build -t my-docker-image:latest .
+
+    - name: Check for Vulnerabilities
+      run: |
+        docker scan my-docker-image:latest
+
+    - name: Manual Approval
+      uses: hmarr/auto-approve-action@v2
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+      env:
+        APPROVAL_MESSAGE: "Please approve to proceed with version calculation."
+      run: |
+        echo "Waiting for manual approval..."
+        sleep 30 # Simulate waiting for approval
+
+    - name: Fetch Latest Tag and Calculate Next Version
+      id: calculate-version
+      run: |
+        git fetch --tags
+        LATEST_TAG=$(git tag --list 'tags/v*' | sort -V | tail -n 1)
+
+        if [ -z "$LATEST_TAG" ]; then
+          MAJOR=0
+          MINOR=0
+          PATCH=0
+        else
+          VERSION=${LATEST_TAG#v}
+          MAJOR=$(echo $VERSION | cut -d. -f1)
+          MINOR=$(echo $VERSION | cut -d. -f2)
+          PATCH=$(echo $VERSION | cut -d. -f3)
+        fi
+
+        COMMITS=$(git log ${LATEST_TAG}..HEAD --pretty=%B)
+
+        if echo "$COMMITS" | grep -q "+semver: major"; then
+          MAJOR=$((MAJOR + 1))
+          MINOR=0
+          PATCH=0
+        elif echo "$COMMITS" | grep -q "+semver: minor"; then
+          MINOR=$((MINOR + 1))
+          PATCH=0
+        elif echo "$COMMITS" | grep -q "+semver: patch"; then
+          PATCH=$((PATCH + 1))
+        else
+          PATCH=$((PATCH + 1))
+        fi
+
+        NEW_TAG="tags/v${MAJOR}.${MINOR}.${PATCH}"
+        echo "new_tag=$NEW_TAG" >> $GITHUB_ENV
+        echo "Calculated new tag: $NEW_TAG"
+
+    - name: Create GitHub Tag
+      run: |
+        git tag ${{ env.new_tag }}
+        git push origin ${{ env.new_tag }}
+
+  tag-pipeline:
+    name: Tag Pipeline
+    runs-on: ubuntu-latest
+    needs: shared-steps
+    steps:
+      - name: Call Shared Steps
+        run: echo "Shared steps executed for tag pipeline."
+
+  scheduled-pipeline:
+    name: Scheduled Pipeline
+    runs-on: ubuntu-latest
+    needs: shared-steps
+    steps:
+      - name: Call Shared Steps
+        run: echo "Shared steps executed for scheduled pipeline."
