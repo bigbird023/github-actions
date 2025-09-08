@@ -83,8 +83,8 @@ jobs:
           echo "- ${{ env.repo_name }}:v$MAJOR.$MINOR"
           echo "- ${{ env.repo_name }}:v$MAJOR"
 
-  main-branch:
-    name: Main Branch Pipeline
+  main-branch-prejob:
+    name: Main Branch Pipeline PreJob
     runs-on: ubuntu-latest
     if: ${{ inputs.pipeline_type == 'main' }}
     steps:
@@ -100,13 +100,6 @@ jobs:
       # - name: Check for Vulnerabilities
       #   run: |
       #     docker scan ${{ inputs.docker_image }}:latest
-
-      - name: Manual Approval
-        uses: hmarr/auto-approve-action@v2
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-        env:
-          APPROVAL_MESSAGE: "Please approve to proceed with version calculation."
 
       - name: Fetch Latest Tag and Calculate Next Version
         id: calculate-version
@@ -143,6 +136,19 @@ jobs:
           NEW_TAG="tags/v${MAJOR}.${MINOR}.${PATCH}"
           echo "new_tag=$NEW_TAG" >> $GITHUB_ENV
           echo "Calculated new tag: $NEW_TAG"
+
+
+  main-branch:
+    name: Main Branch Pipeline
+    runs-on: ubuntu-latest
+    needs: main-branch-prejob
+    if: ${{ inputs.pipeline_type == 'main' }}
+    steps:
+      - uses: trstringer/manual-approval@v1
+        with:
+          secret: ${{ github.TOKEN }}
+          approvers: bigbird023
+          minimum-approvals: 1
 
       - name: Create GitHub Tag
         run: |
