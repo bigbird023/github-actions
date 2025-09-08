@@ -107,9 +107,6 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
         env:
           APPROVAL_MESSAGE: "Please approve to proceed with version calculation."
-        run: |
-          echo "Waiting for manual approval..."
-          sleep 30 # Simulate waiting for approval
 
       - name: Fetch Latest Tag and Calculate Next Version
         id: calculate-version
